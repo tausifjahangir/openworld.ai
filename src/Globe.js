@@ -5,17 +5,42 @@ import * as THREE from 'three';
 import { OrbitControls } from '@react-three/drei';
 import earthImage from './earthTex.jpeg';
 import { Html } from '@react-three/drei';
+import { useState, useEffect } from 'react';
 
 
 const destinations = [
-  { name: 'New York', latitude: 40.7128, longitude: -74.006 },
-  { name: 'London', latitude: 51.5074, longitude: -0.1278 },
+  { name: 'Tokyo', latitude: 35.6895, longitude: 139.6917 }, // Tokyo, Japan
+  { name: 'New York', latitude: 40.7128, longitude: -74.006 }, // New York, USA
+  { name: 'London', latitude: 51.5074, longitude: -0.1278 }, // London, UK
+  { name: 'Paris', latitude: 48.8566, longitude: 2.3522 }, // Paris, France
+  { name: 'Beijing', latitude: 39.9042, longitude: 116.4074 }, // Beijing, China
+  { name: 'Mumbai', latitude: 19.076, longitude: 72.8777 }, // Mumbai, India
+  { name: 'Dhaka', latitude: 23.8103, longitude: 90.4125 }, // Dhaka, Bangladesh
   // Add more destinations with latitude and longitude information
-  // ...
 ];
+
 
 const Globe = () => {
   const controlsRef = useRef();
+  const [labelsVisible, setLabelsVisible] = useState(true);
+
+  useEffect(() => {
+    const controls = controlsRef.current;
+    if (controls) {
+      controls.addEventListener('change', handleGlobeRotation);
+    }
+    return () => {
+      if (controls) {
+        controls.removeEventListener('change', handleGlobeRotation);
+      }
+    };
+  }, []);
+
+  const handleGlobeRotation = () => {
+    // When the globe is rotated, hide the labels
+    setLabelsVisible(false);
+  };
+
 
   // Function to convert latitude and longitude to 3D coordinates
   const latLongToVector3 = (lat, lon, radius) => {
@@ -74,7 +99,7 @@ const Globe = () => {
               style={{
                 color: 'white',
                 fontSize: 3, // Adjust the font size here
-                pointerEvents: 'none',
+                visibility: labelsVisible ? 'visible' : 'hidden', // Toggle visibility based on state
               }}
             >
               <div>{destination.name}</div>
