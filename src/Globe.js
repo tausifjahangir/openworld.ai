@@ -1,12 +1,11 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Sphere } from '@react-three/drei';
 import * as THREE from 'three';
 import { OrbitControls } from '@react-three/drei';
 import earthImage from './earthTex.jpeg';
 import { Html } from '@react-three/drei';
-import { useState, useEffect } from 'react';
-
+import './Globe.css';
 
 const destinations = [
   { name: 'Tokyo', latitude: 35.6895, longitude: 139.6917 }, // Tokyo, Japan
@@ -18,7 +17,6 @@ const destinations = [
   { name: 'Dhaka', latitude: 23.8103, longitude: 90.4125 }, // Dhaka, Bangladesh
   // Add more destinations with latitude and longitude information
 ];
-
 
 const Globe = () => {
   const controlsRef = useRef();
@@ -41,7 +39,6 @@ const Globe = () => {
     setLabelsVisible(false);
   };
 
-
   // Function to convert latitude and longitude to 3D coordinates
   const latLongToVector3 = (lat, lon, radius) => {
     const phi = (lat * Math.PI) / 180;
@@ -54,63 +51,71 @@ const Globe = () => {
     return [x, y, z];
   };
 
+  const toggleLabels = () => {
+    setLabelsVisible(!labelsVisible);
+  };
+
   return (
-    <Canvas
-      style={{ width: '100vw', height: '100vh' }}
-      camera={{ position: [0, 0, 3] }}
-    >
-      <ambientLight intensity={0.5} />
-      <pointLight position={[10, 10, 10]} />
+    <div>
+      <button className='labelButton' onClick={toggleLabels}>
+        {labelsVisible ? 'Hide Labels' : 'Show Labels'}
+      </button>
+      <Canvas
+        style={{ width: '100vw', height: '100vh', backgroundColor: 'black' }}
+        camera={{ position: [0, 0, 3] }}
+      >
+        <ambientLight intensity={0.5} />
+        <pointLight position={[10, 10, 10]} />
 
-      {/* Globe */}
-      <Sphere args={[1.7, 64, 64]}>
-        <meshStandardMaterial
-          attach="material"
-          map={new THREE.TextureLoader().load(earthImage)}
-        />
-      </Sphere>
+        {/* Globe */}
+        <Sphere args={[1.7, 64, 64]}>
+          <meshStandardMaterial
+            attach="material"
+            map={new THREE.TextureLoader().load(earthImage)}
+          />
+        </Sphere>
 
-      {/* Markers for destinations */}
-      {destinations.map((destination, index) => {
-        const [x, y, z] = latLongToVector3(
-          destination.latitude,
-          destination.longitude,
-          1.7
-        );
-        return (
-          <group key={index} position={[x, y, z]}>
-            {/* Shiny sphere */}
-            <mesh>
-              <sphereGeometry args={[0.01, 32, 32]} />
-              <meshStandardMaterial
-                color="gold"
-                emissive="#FFDD43"
-                emissiveIntensity={3} // Increase the intensity for a stronger glow
-                metalness={1} // Set metalness for shininess
-                roughness={0.1} // Adjust roughness for reflection
-                
-              />
-            </mesh>
-            {/* HTML label */}
-            <Html
-              position={[0, 0.1, 0]}
-              center
-              distanceFactor={10}
-              style={{
-                color: 'white',
-                fontSize: 3, // Adjust the font size here
-                visibility: labelsVisible ? 'visible' : 'hidden', // Toggle visibility based on state
-              }}
-            >
-              <div>{destination.name}</div>
-            </Html>
-          </group>
-        );
-      })}
+        {/* Markers for destinations */}
+        {destinations.map((destination, index) => {
+          const [x, y, z] = latLongToVector3(
+            destination.latitude,
+            destination.longitude,
+            1.7
+          );
+          return (
+            <group key={index} position={[x, y, z]}>
+              {/* Shiny sphere */}
+              <mesh>
+                <sphereGeometry args={[0.01, 32, 32]} />
+                <meshStandardMaterial
+                  color="gold"
+                  emissive="#FFDD43"
+                  emissiveIntensity={3} // Increase the intensity for a stronger glow
+                  metalness={1} // Set metalness for shininess
+                  roughness={0.1} // Adjust roughness for reflection
+                />
+              </mesh>
+              {/* HTML label */}
+              <Html
+                position={[0, 0.1, 0]}
+                center
+                distanceFactor={10}
+                style={{
+                  color: 'white',
+                  fontSize: 3, // Adjust the font size here
+                  visibility: labelsVisible ? 'visible' : 'hidden', // Toggle visibility based on state
+                }}
+              >
+                <div>{destination.name}</div>
+              </Html>
+            </group>
+          );
+        })}
 
-      {/* OrbitControls */}
-      <OrbitControls ref={controlsRef} />
-    </Canvas>
+        {/* OrbitControls */}
+        <OrbitControls ref={controlsRef} />
+      </Canvas>
+    </div>
   );
 };
 
